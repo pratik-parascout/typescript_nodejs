@@ -6,14 +6,18 @@ const todos: Todo[] = [];
 
 const router = Router();
 
+type Requestbody = { text: string };
+type Requestparams = { todoId: string };
+
 router.get('/', (req, res, _next) => {
   return res.status(200).json({ todos: todos });
 });
 
 router.post('/todo', (req, res, _next) => {
+  const body = req.body as Requestbody;
   const newTodo: Todo = {
     id: new Date().toISOString(),
-    text: req.body.text,
+    text: body.text,
   };
 
   todos.push(newTodo);
@@ -24,14 +28,16 @@ router.post('/todo', (req, res, _next) => {
 });
 
 router.post('/edit-todo/:todoId', (req, res, _next) => {
-  const tid = req.params.todoId;
+  const params = req.params as Requestparams;
+  const tid = params.todoId;
   const todoIndex = todos.findIndex((todoItem) => todoItem.id === tid);
   if (todoIndex === -1) {
     return res
       .status(404)
       .json({ message: 'Could not find todo for this id.' });
   } else {
-    todos[todoIndex].text = req.body.text;
+    const body = req.body as Requestbody;
+    todos[todoIndex].text = body.text;
     return res
       .status(200)
       .json({ message: 'Updated the todo.', updateTodo: todos[todoIndex] });
@@ -39,7 +45,8 @@ router.post('/edit-todo/:todoId', (req, res, _next) => {
 });
 
 router.post('/delete-todo/:todoId', (req, res, _next) => {
-  const tid = req.params.todoId;
+  const params = req.params as Requestparams;
+  const tid = params.todoId;
   const todoIndex = todos.findIndex((todoItem) => todoItem.id === tid);
   if (todoIndex === -1) {
     return res
